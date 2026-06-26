@@ -5,6 +5,7 @@ import Dashboard from "./pages/Dashboard";
 import AddVisitor from "./pages/AddVisitor";
 import Visitors from "./pages/Visitors";
 import ScanQR from "./pages/ScanQR";
+import VisitorPass from "./pages/VisitorPass";
 
 function App() {
     return (
@@ -14,6 +15,7 @@ function App() {
             <Route path="/addvisitor" element={<AddVisitor />} />
             <Route path="/visitors" element={<Visitors />} />
             <Route path="/scan" element={<ScanQR />} />
+            <Route path="/visitor-pass/:id" element={<VisitorPass />} />
         </Routes>
     );
 }

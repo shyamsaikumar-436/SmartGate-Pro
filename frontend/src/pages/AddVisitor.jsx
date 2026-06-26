@@ -1,8 +1,11 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import API from "../services/api";
 import "../styles/AddVisitor.css";
 
 function AddVisitor() {
+
+    const navigate = useNavigate();
 
     const [form, setForm] = useState({
         visitor_name: "",
@@ -14,6 +17,7 @@ function AddVisitor() {
     });
 
     const [qrImage, setQrImage] = useState("");
+    const [visitorId, setVisitorId] = useState(null);
 
     const handleChange = (e) => {
 
@@ -21,6 +25,22 @@ function AddVisitor() {
             ...form,
             [e.target.name]: e.target.value
         });
+
+    };
+
+    const clearForm = () => {
+
+        setForm({
+            visitor_name: "",
+            phone: "",
+            email: "",
+            host_name: "",
+            purpose: "",
+            visit_date: ""
+        });
+
+        setQrImage("");
+        setVisitorId(null);
 
     };
 
@@ -35,21 +55,21 @@ function AddVisitor() {
             alert("Visitor Added Successfully");
 
             setQrImage(res.data.qrImage);
+            setVisitorId(res.data.visitorId);
 
             setForm({
-                visitor_name:"",
-                phone:"",
-                email:"",
-                host_name:"",
-                purpose:"",
-                visit_date:""
+                visitor_name: "",
+                phone: "",
+                email: "",
+                host_name: "",
+                purpose: "",
+                visit_date: ""
             });
 
-        } catch(err){
-
-            alert("Failed");
+        } catch (err) {
 
             console.log(err);
+            alert("Failed");
 
         }
 
@@ -57,82 +77,143 @@ function AddVisitor() {
 
     return (
 
-        <div className="visitor-page">
+        <div className="visitor-container">
 
-            <form className="visitor-form" onSubmit={submitVisitor}>
+            <div className="visitor-card">
 
-                <h1>Add Visitor</h1>
+                <div className="top-bar">
 
-                <input
-                name="visitor_name"
-                placeholder="Visitor Name"
-                value={form.visitor_name}
-                onChange={handleChange}
-                required
-                />
+                    <button
+                        className="back-btn"
+                        onClick={() => navigate("/dashboard")}
+                    >
+                        ← Dashboard
+                    </button>
 
-                <input
-                name="phone"
-                placeholder="Phone"
-                value={form.phone}
-                onChange={handleChange}
-                required
-                />
+                    <h1>Add New Visitor</h1>
 
-                <input
-                name="email"
-                placeholder="Email"
-                value={form.email}
-                onChange={handleChange}
-                required
-                />
+                </div>
 
-                <input
-                name="host_name"
-                placeholder="Host Name"
-                value={form.host_name}
-                onChange={handleChange}
-                required
-                />
+                <p>Fill the visitor information and generate a QR code.</p>
 
-                <input
-                name="purpose"
-                placeholder="Purpose"
-                value={form.purpose}
-                onChange={handleChange}
-                required
-                />
+                <form onSubmit={submitVisitor}>
 
-                <input
-                type="date"
-                name="visit_date"
-                value={form.visit_date}
-                onChange={handleChange}
-                required
-                />
+                    <input
+                        name="visitor_name"
+                        placeholder="Visitor Name"
+                        value={form.visitor_name}
+                        onChange={handleChange}
+                        required
+                    />
 
-                <button type="submit">
-                    Generate QR
-                </button>
+                    <input
+                        name="phone"
+                        placeholder="Phone Number"
+                        value={form.phone}
+                        onChange={handleChange}
+                        required
+                    />
 
-            </form>
+                    <input
+                        name="email"
+                        placeholder="Email Address"
+                        value={form.email}
+                        onChange={handleChange}
+                        required
+                    />
 
-            {
-                qrImage && (
+                    <input
+                        name="host_name"
+                        placeholder="Host Name"
+                        value={form.host_name}
+                        onChange={handleChange}
+                        required
+                    />
 
-                    <div className="qr-box">
+                    <input
+                        name="purpose"
+                        placeholder="Purpose of Visit"
+                        value={form.purpose}
+                        onChange={handleChange}
+                        required
+                    />
 
-                        <h2>Visitor QR Code</h2>
+                    <input
+                        type="date"
+                        name="visit_date"
+                        value={form.visit_date}
+                        onChange={handleChange}
+                        required
+                    />
 
-                        <img
-                        src={qrImage}
-                        alt="QR"
-                        />
+                    <div className="button-group">
+
+                        <button
+                            type="submit"
+                            className="generate-btn"
+                        >
+                            Generate QR
+                        </button>
+
+                        <button
+                            type="button"
+                            className="clear-btn"
+                            onClick={clearForm}
+                        >
+                            Clear
+                        </button>
 
                     </div>
 
-                )
-            }
+                </form>
+
+            </div>
+
+            <div className="qr-card">
+
+                <h2>Visitor QR Code</h2>
+
+                {
+
+                    qrImage ?
+
+                    <>
+
+                        <img
+                            src={qrImage}
+                            alt="Visitor QR"
+                        />
+
+                        <a
+                            href={qrImage}
+                            download="VisitorQR.png"
+                            className="download-btn"
+                        >
+                            Download QR
+                        </a>
+
+                        <button
+                            className="pass-btn"
+                            onClick={() =>
+                                navigate(`/visitor-pass/${visitorId}`)
+                            }
+                        >
+                            🪪 Visitor Pass
+                        </button>
+
+                    </>
+
+                    :
+
+                    <div className="empty-box">
+
+                        QR Preview
+
+                    </div>
+
+                }
+
+            </div>
 
         </div>
 

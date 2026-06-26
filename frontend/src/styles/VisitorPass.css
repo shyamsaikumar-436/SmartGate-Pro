@@ -1,0 +1,180 @@
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
+
+body{
+    background:#eef3f8;
+}
+
+.pass-page{
+
+    min-height:100vh;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    padding:40px;
+
+}
+
+.visitor-pass{
+
+    width:500px;
+
+    background:white;
+
+    border-radius:20px;
+
+    overflow:hidden;
+
+    box-shadow:0 15px 35px rgba(0,0,0,.15);
+
+}
+
+.pass-header{
+
+    background:#2563eb;
+
+    color:white;
+
+    text-align:center;
+
+    padding:25px;
+
+}
+
+.pass-header h1{
+
+    font-size:32px;
+
+    letter-spacing:2px;
+
+}
+
+.pass-header p{
+
+    margin-top:8px;
+
+    opacity:.9;
+
+}
+
+.pass-title{
+
+    background:#1e40af;
+
+    color:white;
+
+    text-align:center;
+
+    padding:14px;
+
+    font-size:20px;
+
+    font-weight:bold;
+
+    letter-spacing:1px;
+
+}
+
+.pass-details{
+
+    padding:25px 35px;
+
+}
+
+.pass-details p{
+
+    font-size:16px;
+
+    margin-bottom:15px;
+
+    color:#334155;
+
+}
+
+.pass-details strong{
+
+    color:#111827;
+
+}
+
+.qr-section{
+
+    display:flex;
+
+    justify-content:center;
+
+    margin:10px 0 25px;
+
+}
+
+.qr-section img{
+
+    width:220px;
+
+    border:8px solid #f1f5f9;
+
+    border-radius:10px;
+
+}
+
+.print-btn{
+
+    width:100%;
+
+    border:none;
+
+    background:#16a34a;
+
+    color:white;
+
+    padding:18px;
+
+    font-size:18px;
+
+    cursor:pointer;
+
+    transition:.3s;
+
+}
+
+.print-btn:hover{
+
+    background:#15803d;
+
+}
+
+/* Print Only Visitor Pass */
+
+@media print{
+
+    body{
+
+        background:white;
+
+    }
+
+    .print-btn{
+
+        display:none;
+
+    }
+
+    .visitor-pass{
+
+        width:100%;
+
+        box-shadow:none;
+
+        border:2px solid black;
+
+    }
+
+}

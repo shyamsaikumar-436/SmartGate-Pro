@@ -180,6 +180,34 @@ const confirmExit = (req, res) => {
         });
 
     });
+  
+};
+
+const getVisitorById = (req, res) => {
+
+    const { id } = req.params;
+
+    const sql = `
+        SELECT *
+        FROM visitors
+        WHERE id = ?
+    `;
+
+    db.query(sql, [id], (err, result) => {
+
+        if (err) {
+            return res.status(500).json(err);
+        }
+
+        if (result.length === 0) {
+            return res.status(404).json({
+                message: "Visitor Not Found"
+            });
+        }
+
+        res.json(result[0]);
+
+    });
 
 };
 module.exports = {
@@ -188,5 +216,6 @@ module.exports = {
     getAllVisitors,
     getVisitorByQR,
     confirmEntry,
-    confirmExit
+    confirmExit,
+    getVisitorById
 };

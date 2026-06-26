@@ -1,49 +1,197 @@
-.scan-page{
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
 
-    padding:40px;
+body{
+    background:#f4f7fb;
+}
+
+.scan-container{
+
+    display:grid;
+    grid-template-columns:1.2fr 1fr;
+
+    gap:30px;
+
+    padding:35px;
 
 }
 
-.scan-page input{
-
-    width:450px;
-
-    padding:15px;
-
-    font-size:16px;
-
-}
-
-.scan-page button{
-
-    margin-left:10px;
-
-    padding:15px 25px;
-
-    cursor:pointer;
-
-}
-
-.visitor-card{
-
-    width:500px;
-
-    margin-top:30px;
+.camera-card,
+.details-card{
 
     background:white;
 
-    padding:25px;
+    border-radius:18px;
 
-    border-radius:12px;
+    padding:30px;
 
-    box-shadow:0 5px 20px rgba(0,0,0,.15);
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
 
 }
 
-.visitor-card button{
+.camera-card h1{
 
-    margin-right:15px;
+    color:#1e293b;
+    margin-bottom:10px;
 
-    margin-top:20px;
+}
+
+.camera-card p{
+
+    color:#64748b;
+    margin-bottom:20px;
+
+}
+
+#reader{
+
+    width:100%;
+
+    border-radius:12px;
+
+    overflow:hidden;
+
+}
+
+.details-card h2{
+
+    color:#1e293b;
+    margin-bottom:25px;
+
+}
+
+.visitor-info p{
+
+    margin-bottom:15px;
+
+    font-size:16px;
+
+    color:#334155;
+
+}
+
+.status{
+
+    margin-left:10px;
+
+    padding:5px 12px;
+
+    border-radius:20px;
+
+    color:white;
+
+    font-size:14px;
+
+}
+
+.status.pending{
+
+    background:#f59e0b;
+
+}
+
+.status.entered{
+
+    background:#16a34a;
+
+}
+
+.status.exited{
+
+    background:#dc2626;
+
+}
+
+.entry-btn,
+.exit-btn,
+.scan-btn{
+
+    width:100%;
+
+    border:none;
+
+    padding:15px;
+
+    border-radius:10px;
+
+    cursor:pointer;
+
+    font-size:16px;
+
+    margin-top:15px;
+
+    transition:.3s;
+
+}
+
+.entry-btn{
+
+    background:#16a34a;
+
+    color:white;
+
+}
+
+.entry-btn:hover{
+
+    background:#15803d;
+
+}
+
+.exit-btn{
+
+    background:#dc2626;
+
+    color:white;
+
+}
+
+.exit-btn:hover{
+
+    background:#b91c1c;
+
+}
+
+.scan-btn{
+
+    background:#2563eb;
+
+    color:white;
+
+}
+
+.scan-btn:hover{
+
+    background:#1d4ed8;
+
+}
+
+.waiting{
+
+    display:flex;
+
+    flex-direction:column;
+
+    justify-content:center;
+
+    align-items:center;
+
+    height:300px;
+
+    color:#64748b;
+
+}
+
+@media(max-width:900px){
+
+.scan-container{
+
+    grid-template-columns:1fr;
+
+}
 
 }

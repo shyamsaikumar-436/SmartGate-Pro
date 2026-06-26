@@ -1,105 +1,152 @@
 import { useEffect, useState } from "react";
-import { FaUsers, FaUserCheck, FaQrcode, FaSignOutAlt } from "react-icons/fa";
+import {
+  FaUsers,
+  FaUserCheck,
+  FaQrcode,
+  FaSignOutAlt,
+  FaHistory,
+  FaHome
+} from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
 import "../styles/Dashboard.css";
 
 function Dashboard() {
+  const navigate = useNavigate();
 
-    const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user"));
 
-    const [stats, setStats] = useState({
-        totalVisitors: 0,
-        insideVisitors: 0
-    });
+  const [stats, setStats] = useState({
+    totalVisitors: 0,
+    insideVisitors: 0,
+  });
 
-    useEffect(() => {
-        fetchDashboardStats();
-    }, []);
+  useEffect(() => {
+    fetchDashboardStats();
+  }, []);
 
-    const fetchDashboardStats = async () => {
+  const fetchDashboardStats = async () => {
+    try {
+      const res = await API.get("/visitors/dashboard");
+      setStats(res.data);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
-        try {
+  const logout = () => {
+    localStorage.clear();
+    navigate("/");
+  };
 
-            const res = await API.get("/visitors/dashboard");
+  return (
+    <div className="dashboard">
 
-            setStats(res.data);
+      <aside className="sidebar">
 
-        } catch (error) {
+        <div className="logo">
+          <h2>SmartGate</h2>
+          <p>Visitor Management</p>
+        </div>
 
-            console.log(error);
+        <button className="active">
+          <FaHome />
+          Dashboard
+        </button>
 
-        }
+        <button onClick={() => navigate("/addvisitor")}>
+          <FaUsers />
+          Add Visitor
+        </button>
 
-    };
+        <button onClick={() => navigate("/visitors")}>
+          <FaHistory />
+          Visitor History
+        </button>
 
-    const logout = () => {
+        <button onClick={() => navigate("/scan")}>
+          <FaQrcode />
+          Scan QR
+        </button>
 
-        localStorage.clear();
-        navigate("/");
+        <button className="logout" onClick={logout}>
+          <FaSignOutAlt />
+          Logout
+        </button>
 
-    };
+      </aside>
 
-    return (
+      <main className="main-content">
 
-        <div className="dashboard">
+        <div className="topbar">
 
-            <div className="sidebar">
+          <div>
 
-                <h2>SmartGate</h2>
+            <h1>Dashboard</h1>
 
-                <button onClick={() => navigate("/addvisitor")}>
-                    <FaUsers /> Add Visitor
-                </button>
+            <p>Welcome back, {user?.full_name || "Admin"} 👋</p>
 
-                <button onClick={() => navigate("/visitors")}>
-                    <FaHistory /> Visitor History
-                </button>
-
-                <button onClick={() => navigate("/scan")}>
-                    <FaQrcode /> Scan QR
-                </button>
-
-                <button onClick={logout}>
-                    <FaSignOutAlt /> Logout
-                </button>
-
-            </div>
-
-            <div className="content">
-
-                <h1>Dashboard</h1>
-
-                <div className="cards">
-
-                    <div className="card">
-
-                        <FaUsers size={35} />
-
-                        <h2>Total Visitors</h2>
-
-                        <h1>{stats.totalVisitors}</h1>
-
-                    </div>
-
-                    <div className="card">
-
-                        <FaUserCheck size={35} />
-
-                        <h2>Visitors Inside</h2>
-
-                        <h1>{stats.insideVisitors}</h1>
-
-                    </div>
-
-                </div>
-
-            </div>
+          </div>
 
         </div>
 
-    );
+        <div className="cards">
 
+          <div className="card">
+
+            <div className="icon blue">
+
+              <FaUsers />
+
+            </div>
+
+            <div>
+
+              <h4>Total Visitors</h4>
+
+              <h2>{stats.totalVisitors}</h2>
+
+            </div>
+
+          </div>
+
+          <div className="card">
+
+            <div className="icon green">
+
+              <FaUserCheck />
+
+            </div>
+
+            <div>
+
+              <h4>Visitors Inside</h4>
+
+              <h2>{stats.insideVisitors}</h2>
+
+            </div>
+
+          </div>
+
+        </div>
+
+        <div className="welcome-card">
+
+          <h2>Welcome to SmartGate Pro</h2>
+
+          <p>
+
+            Manage visitor registrations, QR verification,
+            and entry records from one place.
+
+          </p>
+
+        </div>
+
+      </main>
+
+    </div>
+  );
 }
 
 export default Dashboard;

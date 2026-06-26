@@ -8,7 +8,8 @@ const {
     getAllVisitors,
     getVisitorByQR,
     confirmEntry,
-    confirmExit
+    confirmExit,
+    getVisitorById
 } = require("../controllers/visitorController");
 
 router.post("/add", addVisitor);
@@ -22,5 +23,7 @@ router.get("/scan/:token", getVisitorByQR);
 router.put("/entry/:token", confirmEntry);
 
 router.put("/exit/:token", confirmExit);
+
+router.get("/:id", getVisitorById);
 
 module.exports = router;

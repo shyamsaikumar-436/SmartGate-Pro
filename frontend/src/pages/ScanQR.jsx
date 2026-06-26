@@ -1,13 +1,97 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Html5Qrcode } from "html5-qrcode";
 import API from "../services/api";
 import "../styles/ScanQR.css";
 
 function ScanQR() {
 
-    const [token, setToken] = useState("");
-    const [visitor, setVisitor] = useState(null);
+    const scannerRef = useRef(null);
 
-    const scanQR = async () => {
+    const [visitor, setVisitor] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [scannerStarted, setScannerStarted] = useState(false);
+
+    useEffect(() => {
+
+        startScanner();
+
+        return () => {
+
+            stopScanner();
+
+        };
+
+    }, []);
+
+    const startScanner = async () => {
+
+        if (scannerStarted) return;
+
+        try {
+
+            const scanner = new Html5Qrcode("reader");
+
+            scannerRef.current = scanner;
+
+            await scanner.start(
+
+                {
+                    facingMode: "environment"
+                },
+
+                {
+                    fps: 10,
+                    qrbox: {
+                        width: 250,
+                        height: 250
+                    }
+                },
+
+                async (decodedText) => {
+
+                    await stopScanner();
+
+                    fetchVisitor(decodedText);
+
+                },
+
+                () => {}
+
+            );
+
+            setScannerStarted(true);
+
+        } catch (err) {
+
+            console.log(err);
+
+        }
+
+    };
+
+    const stopScanner = async () => {
+
+        if (scannerRef.current) {
+
+            try {
+
+                await scannerRef.current.stop();
+
+                await scannerRef.current.clear();
+
+            } catch (e) {}
+
+            scannerRef.current = null;
+
+        }
+
+        setScannerStarted(false);
+
+    };
+
+    const fetchVisitor = async (token) => {
+
+        setLoading(true);
 
         try {
 
@@ -19,73 +103,202 @@ function ScanQR() {
 
             alert("Visitor Not Found");
 
+            restartScanner();
+
         }
+
+        setLoading(false);
+
+    };
+
+    const restartScanner = () => {
+
+        setVisitor(null);
+
+        startScanner();
 
     };
 
     const confirmEntry = async () => {
 
-        await API.put(`/visitors/entry/${token}`);
+        try {
 
-        alert("Entry Confirmed");
+            await API.put(`/visitors/entry/${visitor.qr_token}`);
 
-        scanQR();
+            const res = await API.get(`/visitors/scan/${visitor.qr_token}`);
+
+            setVisitor(res.data);
+
+            alert("Entry Confirmed");
+
+        } catch (err) {
+
+            console.log(err);
+
+        }
 
     };
 
     const confirmExit = async () => {
 
-        await API.put(`/visitors/exit/${token}`);
+        try {
 
-        alert("Exit Confirmed");
+            await API.put(`/visitors/exit/${visitor.qr_token}`);
 
-        scanQR();
+            const res = await API.get(`/visitors/scan/${visitor.qr_token}`);
+
+            setVisitor(res.data);
+
+            alert("Exit Confirmed");
+
+        } catch (err) {
+
+            console.log(err);
+
+        }
 
     };
 
     return (
 
-        <div className="scan-page">
+        <div className="scan-container">
 
-            <h1>Scan QR</h1>
+            <div className="camera-card">
 
-            <input
-                placeholder="Paste QR Token"
-                value={token}
-                onChange={(e)=>setToken(e.target.value)}
-            />
+                <h1>Security QR Scanner</h1>
 
-            <button onClick={scanQR}>
-                Search
-            </button>
+                <p>Scan Visitor QR Code</p>
 
-            {
+                <div id="reader"></div>
 
-                visitor && (
+                {loading &&
 
-                    <div className="visitor-card">
+                    <h3 style={{marginTop:"20px"}}>
 
-                        <h2>{visitor.visitor_name}</h2>
+                        Loading...
 
-                        <p><b>Host:</b> {visitor.host_name}</p>
+                    </h3>
 
-                        <p><b>Purpose:</b> {visitor.purpose}</p>
+                }
 
-                        <p><b>Status:</b> {visitor.status}</p>
+            </div>
 
-                        <button onClick={confirmEntry}>
-                            Confirm Entry
-                        </button>
+            <div className="details-card">
 
-                        <button onClick={confirmExit}>
-                            Confirm Exit
-                        </button>
+                <h2>Visitor Details</h2>
 
-                    </div>
+                {
 
-                )
+                    visitor ? (
 
-            }
+                        <>
+                                                    <div className="visitor-info">
+
+                                <p>
+                                    <strong>Name :</strong>{" "}
+                                    {visitor.visitor_name}
+                                </p>
+
+                                <p>
+                                    <strong>Phone :</strong>{" "}
+                                    {visitor.phone}
+                                </p>
+
+                                <p>
+                                    <strong>Email :</strong>{" "}
+                                    {visitor.email}
+                                </p>
+
+                                <p>
+                                    <strong>Host :</strong>{" "}
+                                    {visitor.host_name}
+                                </p>
+
+                                <p>
+                                    <strong>Purpose :</strong>{" "}
+                                    {visitor.purpose}
+                                </p>
+
+                                <p>
+                                    <strong>Visit Date :</strong>{" "}
+                                    {new Date(visitor.visit_date).toLocaleDateString()}
+                                </p>
+
+                                <p>
+                                    <strong>Status :</strong>
+
+                                    <span
+                                        className={`status ${visitor.status.toLowerCase()}`}
+                                    >
+                                        {visitor.status}
+                                    </span>
+
+                                </p>
+
+                            </div>
+
+                            {
+
+                                visitor.status === "Pending" && (
+
+                                    <button
+                                        className="entry-btn"
+                                        onClick={confirmEntry}
+                                    >
+
+                                        ✅ Confirm Entry
+
+                                    </button>
+
+                                )
+
+                            }
+
+                            {
+
+                                visitor.status === "Entered" && (
+
+                                    <button
+                                        className="exit-btn"
+                                        onClick={confirmExit}
+                                    >
+
+                                        ❌ Confirm Exit
+
+                                    </button>
+
+                                )
+
+                            }
+
+                            <button
+                                className="scan-btn"
+                                onClick={restartScanner}
+                            >
+
+                                🔄 Scan Another Visitor
+
+                            </button>
+
+                        </>
+
+                    ) : (
+
+                        <div className="waiting">
+
+                            <h3>📷 Waiting for QR Scan...</h3>
+
+                            <p>
+                                Point the visitor QR code towards the camera.
+                            </p>
+
+                        </div>
+
+                    )
+
+                }
+
+            </div>
 
         </div>
 

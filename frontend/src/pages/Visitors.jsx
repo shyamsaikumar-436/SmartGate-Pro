@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import API from "../services/api";
 import "../styles/Visitors.css";
 
 function Visitors() {
 
+    const navigate = useNavigate();
+
     const [visitors, setVisitors] = useState([]);
+    const [search, setSearch] = useState("");
 
     useEffect(() => {
         loadVisitors();
@@ -26,66 +30,102 @@ function Visitors() {
 
     };
 
+    const filteredVisitors = visitors.filter((visitor) =>
+        visitor.visitor_name.toLowerCase().includes(search.toLowerCase())
+    );
+
     return (
 
-        <div className="visitor-history">
+        <div className="history-page">
 
-            <h1>Visitor History</h1>
+            <div className="history-header">
 
-            <table>
+                <h1>Visitor History</h1>
 
-                <thead>
+                <input
+                    type="text"
+                    placeholder="🔍 Search Visitor..."
+                    value={search}
+                    onChange={(e)=>setSearch(e.target.value)}
+                />
 
-                    <tr>
+            </div>
 
-                        <th>ID</th>
-                        <th>Visitor</th>
-                        <th>Phone</th>
-                        <th>Host</th>
-                        <th>Purpose</th>
-                        <th>Status</th>
+            <div className="table-card">
 
-                    </tr>
+                <table>
 
-                </thead>
+                    <thead>
 
-                <tbody>
+                        <tr>
 
-                    {
+                            <th>ID</th>
+                            <th>Visitor</th>
+                            <th>Phone</th>
+                            <th>Host</th>
+                            <th>Purpose</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
 
-                        visitors.map((visitor) => (
+                        </tr>
 
-                            <tr key={visitor.id}>
+                    </thead>
 
-                                <td>{visitor.id}</td>
+                    <tbody>
 
-                                <td>{visitor.visitor_name}</td>
+                        {
 
-                                <td>{visitor.phone}</td>
+                            filteredVisitors.map((visitor)=>(
 
-                                <td>{visitor.host_name}</td>
+                                <tr key={visitor.id}>
 
-                                <td>{visitor.purpose}</td>
+                                    <td>{visitor.id}</td>
 
-                                <td>
+                                    <td>{visitor.visitor_name}</td>
 
-                                    <span className={visitor.status.toLowerCase()}>
+                                    <td>{visitor.phone}</td>
 
-                                        {visitor.status}
+                                    <td>{visitor.host_name}</td>
 
-                                    </span>
+                                    <td>{visitor.purpose}</td>
 
-                                </td>
+                                    <td>
+                                        {new Date(visitor.visit_date).toLocaleDateString()}
+                                    </td>
 
-                            </tr>
+                                    <td>
 
-                        ))
+                                        <span
+                                            className={visitor.status.toLowerCase()}
+                                        >
+                                            {visitor.status}
+                                        </span>
 
-                    }
+                                    </td>
 
-                </tbody>
+                                    <td>
 
-            </table>
+                                        <button
+                                            className="view-btn"
+                                            onClick={() => navigate(`/visitor-pass/${visitor.id}`)}
+                                        >
+                                            👁 View Pass
+                                        </button>
+
+                                    </td>
+
+                                </tr>
+
+                            ))
+
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
 
         </div>
 
