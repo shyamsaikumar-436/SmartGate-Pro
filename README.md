@@ -1,115 +1,133 @@
-# 🏢 SmartGate - QR Based Visitor Management System
+# 🚀 SmartGate-Pro
 
-SmartGate is a full-stack Visitor Management System that simplifies visitor registration and entry using QR codes. It allows administrators to register visitors, generate unique QR codes, monitor visitor status, and manage entry and exit through a secure web application.
+A **QR-Based Visitor Management System** developed using **React, Node.js, Express, and MySQL**. SmartGate-Pro enables secure visitor registration, QR code generation, visitor pass printing, live QR scanning using a laptop camera, and real-time entry/exit tracking.
 
 ---
 
 ## 📌 Features
 
-### 👨‍💼 Admin Authentication
-
-* Secure Admin Login
-* Password Encryption using bcrypt
-* JWT Authentication
-
-### 👥 Visitor Management
-
-* Add New Visitors
-* Store Visitor Details in MySQL
-* View Visitor History
-* Search Visitor by QR Token
-
-### 📱 QR Code System
-
-* Generate Unique QR Code for Every Visitor
-* Store QR Code in Database
-* Scan QR Token
-* Confirm Visitor Entry
-* Confirm Visitor Exit
-
-### 📊 Dashboard
-
-* Total Visitors
-* Visitors Currently Inside
-* Dynamic Dashboard Statistics
-
-### 🗄 Database
-
-* MySQL Database
-* Users Table
-* Visitors Table
+- 🔐 Admin Login Authentication (JWT)
+- 👤 Add New Visitor
+- 📄 Generate QR-Based Visitor Pass
+- 🖨️ Print Visitor Pass
+- 📷 Live Laptop Camera QR Scanner
+- ✅ Confirm Visitor Entry
+- 🚪 Confirm Visitor Exit
+- 📋 Visitor History
+- 🔍 Search Visitors
+- 📊 Dashboard with Visitor Statistics
+- 💾 MySQL Database Integration
 
 ---
 
-## 🛠 Tech Stack
+## 🛠️ Tech Stack
 
 ### Frontend
-
-* React.js
-* Vite
-* Axios
-* React Router
-* CSS
+- React.js
+- React Router
+- Axios
+- HTML5
+- CSS3
 
 ### Backend
-
-* Node.js
-* Express.js
-* JWT Authentication
-* bcrypt
-* QRCode
-* MySQL2
+- Node.js
+- Express.js
+- JWT Authentication
+- QRCode Library
+- html5-qrcode
 
 ### Database
-
-* MySQL
+- MySQL
 
 ---
 
 ## 📂 Project Structure
 
 ```
-SmartGate
+SmartGate-Pro
+│
+├── frontend
+│   ├── src
+│   │   ├── pages
+│   │   ├── styles
+│   │   ├── services
+│   │   └── App.jsx
+│   └── package.json
 │
 ├── backend
 │   ├── config
 │   ├── controllers
 │   ├── routes
+│   ├── middleware
 │   ├── server.js
-│   ├── package.json
-│   └── .env.example
-│
-├── frontend
-│   ├── public
-│   ├── src
-│   │   ├── pages
-│   │   ├── services
-│   │   ├── styles
-│   │   ├── App.jsx
-│   │   └── main.jsx
 │   └── package.json
 │
-├── database.sql
 └── README.md
 ```
 
 ---
 
-## ⚙ Installation
+## 🔄 Workflow
 
-### 1. Clone Repository
-
-```bash
-git clone https://github.com/shyamsaikumar-436/SmartGate.git
+```
+Admin Login
+      │
+      ▼
+Add Visitor
+      │
+      ▼
+Generate QR Code
+      │
+      ▼
+Save Visitor in MySQL
+      │
+      ▼
+Print Visitor Pass
+      │
+      ▼
+Visitor Arrives
+      │
+      ▼
+Security Scans QR
+      │
+      ▼
+Display Visitor Details
+      │
+      ▼
+Confirm Entry
+      │
+      ▼
+Visitor Leaves
+      │
+      ▼
+Scan QR Again
+      │
+      ▼
+Confirm Exit
 ```
 
-### 2. Open Project
+---
+
+## 📷 Application Modules
+
+- Login
+- Dashboard
+- Add Visitor
+- Visitor History
+- Visitor Pass
+- QR Scanner
+
+---
+
+## 🚀 Installation
+
+### Clone Repository
 
 ```bash
-cd SmartGate
+git clone https://github.com/shyamsaikumar-436/SmartGate-Pro.git
 ```
 
-### 3. Backend Setup
+### Backend
 
 ```bash
 cd backend
@@ -117,9 +135,7 @@ npm install
 npm run dev
 ```
 
-### 4. Frontend Setup
-
-Open another terminal.
+### Frontend
 
 ```bash
 cd frontend
@@ -129,82 +145,52 @@ npm run dev
 
 ---
 
-## 🗄 Database Setup
+## 🗄️ Database Configuration
 
-1. Install MySQL Server.
-2. Open MySQL Workbench.
-3. Execute the `database.sql` file.
-4. Create a `.env` file inside the `backend` folder.
-5. Copy the contents of `.env.example` into `.env`.
-6. Update your MySQL username, password, and JWT secret.
-
----
-
-## 🔐 Environment Variables
+Create a MySQL database named:
 
 ```
+smartgate
+```
+
+Update your `.env` file:
+
+```env
 PORT=5000
 
 DB_HOST=localhost
 DB_USER=root
-DB_PASSWORD=your_mysql_password
+DB_PASSWORD=YOUR_PASSWORD
 DB_NAME=smartgate
 
 JWT_SECRET=your_secret_key
 ```
 
----
-
-## 🚀 API Endpoints
-
-### Authentication
-
-| Method | Endpoint             | Description    |
-| ------ | -------------------- | -------------- |
-| POST   | `/api/auth/register` | Register Admin |
-| POST   | `/api/auth/login`    | Admin Login    |
-
-### Visitors
-
-| Method | Endpoint                     | Description          |
-| ------ | ---------------------------- | -------------------- |
-| POST   | `/api/visitors/add`          | Add Visitor          |
-| GET    | `/api/visitors/all`          | Visitor History      |
-| GET    | `/api/visitors/dashboard`    | Dashboard Statistics |
-| GET    | `/api/visitors/scan/:token`  | Scan QR              |
-| PUT    | `/api/visitors/entry/:token` | Confirm Entry        |
-| PUT    | `/api/visitors/exit/:token`  | Confirm Exit         |
+Import the required SQL tables before running the project.
 
 ---
 
-## 📸 Screenshots
+## 🎯 Future Enhancements
 
-Screenshots will be added after the UI polishing phase.
-
----
-
-## 🔮 Future Improvements
-
-* Camera-based QR Scanner
-* Visitor Pass Printing
-* Download QR Code
-* Search and Filter Visitors
-* Dashboard Charts
-* Responsive Design
-* Email Notifications
+- Email QR Pass to Visitors
+- Role-Based Authentication (Admin & Security)
+- Visitor Photo Capture
+- Appointment Scheduling
+- Analytics Dashboard
+- Visitor Reports (PDF/Excel)
 
 ---
 
 ## 👨‍💻 Developer
 
-**Shyam Sai Kumar**
+**P. Shyam Sai Kumar**
 
-B.Tech - Computer Science and Engineering (AI & ML)
+B.Tech – Computer Science and Engineering (AI & ML)
 
-SRM University AP
+SRM University – AP
 
 ---
 
-## 📄 License
+## ⭐ If you like this project
 
-This project is developed for educational and portfolio purposes.
+Please consider giving this repository a **Star ⭐**.
