@@ -1,0 +1,75 @@
+.visitor-history{
+
+    padding:40px;
+
+}
+
+.visitor-history h1{
+
+    margin-bottom:25px;
+
+}
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    background:white;
+
+}
+
+th{
+
+    background:#1565c0;
+
+    color:white;
+
+    padding:15px;
+
+}
+
+td{
+
+    padding:15px;
+
+    border-bottom:1px solid #ddd;
+
+}
+
+.pending{
+
+    background:orange;
+
+    color:white;
+
+    padding:6px 12px;
+
+    border-radius:20px;
+
+}
+
+.entered{
+
+    background:green;
+
+    color:white;
+
+    padding:6px 12px;
+
+    border-radius:20px;
+
+}
+
+.exited{
+
+    background:red;
+
+    color:white;
+
+    padding:6px 12px;
+
+    border-radius:20px;
+
+}

@@ -1,0 +1,91 @@
+body{
+    background:#eef2f7;
+}
+
+.visitor-page{
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:60px;
+
+    padding:50px;
+
+}
+
+.visitor-form{
+
+    width:420px;
+
+    background:white;
+
+    padding:30px;
+
+    border-radius:12px;
+
+    box-shadow:0 5px 20px rgba(0,0,0,.15);
+
+}
+
+.visitor-form h1{
+
+    margin-bottom:20px;
+
+    text-align:center;
+
+}
+
+.visitor-form input{
+
+    width:100%;
+
+    padding:14px;
+
+    margin-bottom:15px;
+
+    border:1px solid #ccc;
+
+    border-radius:8px;
+
+}
+
+.visitor-form button{
+
+    width:100%;
+
+    padding:15px;
+
+    background:#1565c0;
+
+    color:white;
+
+    border:none;
+
+    border-radius:8px;
+
+    cursor:pointer;
+
+    font-size:17px;
+
+}
+
+.qr-box{
+
+    background:white;
+
+    padding:30px;
+
+    border-radius:12px;
+
+    text-align:center;
+
+    box-shadow:0 5px 20px rgba(0,0,0,.15);
+
+}
+
+.qr-box img{
+
+    width:250px;
+
+}
