@@ -1,30 +1,34 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import API from "../services/api";
-import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaShieldAlt, FaCheckCircle } from "react-icons/fa";
-import "../styles/Login.css";
+import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaShieldAlt, FaCheckCircle } from "react-icons/fa";
+import "../styles/Login.css"; // Reusing the awesome login styling
 
-function Login() {
+function Signup() {
   const navigate = useNavigate();
 
+  const [full_name, setFullName] = useState("");
   const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState("");
+  const [success, setSuccess]   = useState("");
 
-  const loginUser = async (e) => {
+  const registerUser = async (e) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
     setLoading(true);
 
     try {
-      const res = await API.post("/auth/login", { email, password });
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-      navigate("/dashboard");
+      await API.post("/auth/register", { full_name, email, password, role: "admin" });
+      setSuccess("Account created successfully! Redirecting to login...");
+      setTimeout(() => {
+        navigate("/");
+      }, 2000);
     } catch (err) {
-      setError(err.response?.data?.message || "Invalid credentials. Please try again.");
+      setError(err.response?.data?.message || "Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -72,10 +76,10 @@ function Login() {
 
       {/* Right Panel */}
       <div className="login-right">
-        <form className="login-box" onSubmit={loginUser}>
+        <form className="login-box" onSubmit={registerUser}>
           <div className="login-box-header">
-            <h2>Welcome Back 👋</h2>
-            <p>Sign in to your SmartGate admin panel</p>
+            <h2>Create an Account 🚀</h2>
+            <p>Sign up to manage your gates securely</p>
           </div>
 
           {error && (
@@ -83,6 +87,26 @@ function Login() {
               <span>⚠️ {error}</span>
             </div>
           )}
+          
+          {success && (
+            <div className="error-banner" style={{ background: 'rgba(16,185,129,0.1)', borderColor: 'rgba(16,185,129,0.3)', color: 'var(--success)' }}>
+              <span>✅ {success}</span>
+            </div>
+          )}
+
+          <div className="input-group">
+            <label>Full Name</label>
+            <div className="input-wrap">
+              <FaUser className="input-icon" />
+              <input
+                type="text"
+                placeholder="John Doe"
+                value={full_name}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+              />
+            </div>
+          </div>
 
           <div className="input-group">
             <label>Email Address</label>
@@ -104,7 +128,7 @@ function Login() {
               <FaLock className="input-icon" />
               <input
                 type={showPass ? "text" : "password"}
-                placeholder="Enter your password"
+                placeholder="Choose a secure password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -118,18 +142,19 @@ function Login() {
               </button>
             </div>
           </div>
+
           <button type="submit" className="login-btn" disabled={loading}>
             {loading ? (
               <span className="spinner" />
             ) : (
-              "Sign In"
+              "Sign Up"
             )}
           </button>
 
           <p className="login-footer-text" style={{ marginTop: '16px' }}>
-            Don't have an account?{" "}
-            <Link to="/signup" style={{ color: "var(--primary)", textDecoration: "none", fontWeight: "600" }}>
-              Sign up
+            Already have an account?{" "}
+            <Link to="/" style={{ color: "var(--primary)", textDecoration: "none", fontWeight: "600" }}>
+              Sign in
             </Link>
           </p>
         </form>
@@ -138,4 +163,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default Signup;

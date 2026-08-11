@@ -7,10 +7,13 @@ import Visitors from "./pages/Visitors";
 import ScanQR from "./pages/ScanQR";
 import VisitorPass from "./pages/VisitorPass";
 
+import Signup from "./pages/Signup";
+
 function App() {
     return (
         <Routes>
             <Route path="/" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/addvisitor" element={<AddVisitor />} />
             <Route path="/visitors" element={<Visitors />} />

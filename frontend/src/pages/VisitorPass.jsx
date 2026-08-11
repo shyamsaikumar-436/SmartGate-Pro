@@ -1,107 +1,130 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import API from "../services/api";
+import { FaArrowLeft, FaPrint, FaShieldAlt } from "react-icons/fa";
 import "../styles/VisitorPass.css";
 
 function VisitorPass() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [visitor, setVisitor] = useState(null);
 
-    const { id } = useParams();
+  useEffect(() => {
+    loadVisitor();
+  }, []);
 
-    const [visitor, setVisitor] = useState(null);
-
-    useEffect(() => {
-
-        loadVisitor();
-
-    }, []);
-
-    const loadVisitor = async () => {
-
-        try {
-
-            const res = await API.get(`/visitors/${id}`);
-
-            setVisitor(res.data);
-
-        } catch (err) {
-
-            console.log(err);
-
-        }
-
-    };
-
-    if (!visitor) {
-
-        return <h2 style={{ textAlign: "center", marginTop: "80px" }}>Loading...</h2>;
-
+  const loadVisitor = async () => {
+    try {
+      const res = await API.get(`/visitors/${id}`);
+      setVisitor(res.data);
+    } catch (err) {
+      console.log(err);
     }
+  };
 
+  if (!visitor) {
     return (
+      <div className="vp-loading-screen">
+        <div className="vp-spinner" />
+        <p>Loading visitor pass...</p>
+      </div>
+    );
+  }
 
-        <div className="pass-page">
+  const statusColor = {
+    Pending: "orange",
+    Entered: "green",
+    Exited:  "gray",
+  }[visitor.status] || "gray";
 
-            <div className="visitor-pass">
+  const fields = [
+    { label: "Visitor Name",   value: visitor.visitor_name },
+    { label: "Phone",          value: visitor.phone },
+    { label: "Email",          value: visitor.email },
+    { label: "Host / Meeting", value: visitor.host_name },
+    { label: "Purpose",        value: visitor.purpose },
+    {
+      label: "Visit Date",
+      value: new Date(visitor.visit_date).toLocaleDateString("en-IN", {
+        weekday: "long", day: "2-digit", month: "long", year: "numeric",
+      }),
+    },
+  ];
 
-                <div className="pass-header">
+  return (
+    <div className="vp-page">
+      {/* Toolbar (hidden on print) */}
+      <div className="vp-toolbar no-print">
+        <button className="vp-back-btn" onClick={() => navigate(-1)}>
+          <FaArrowLeft /> Back
+        </button>
+        <h2 className="vp-toolbar-title">Visitor Pass Preview</h2>
+        <button className="vp-print-btn" onClick={() => window.print()}>
+          <FaPrint /> Print Pass
+        </button>
+      </div>
 
-                    <h1>SMARTGATE</h1>
+      {/* Pass Card */}
+      <div className="vp-pass-wrap">
+        <div className="vp-pass">
+          {/* Pass Header */}
+          <div className="vp-pass-header">
+            <div className="vp-pass-brand">
+              <div className="vp-shield-icon">
+                <FaShieldAlt />
+              </div>
+              <div>
+                <h1 className="vp-brand-name">SmartGate Pro</h1>
+                <p className="vp-brand-sub">QR Visitor Management System</p>
+              </div>
+            </div>
+            <div className={`vp-pass-type vp-pass-type--${statusColor}`}>
+              VISITOR PASS
+            </div>
+          </div>
 
-                    <p>QR Visitor Management System</p>
+          {/* Pass Body */}
+          <div className="vp-pass-body">
+            {/* Left: Details */}
+            <div className="vp-pass-details">
+              <div className="vp-visitor-initial">
+                {visitor.visitor_name.charAt(0).toUpperCase()}
+              </div>
 
-                </div>
+              <div className="vp-fields">
+                {fields.map((f, i) => (
+                  <div className="vp-field" key={i}>
+                    <p className="vp-field-label">{f.label}</p>
+                    <p className="vp-field-value">{f.value}</p>
+                  </div>
+                ))}
+              </div>
 
-                <div className="pass-title">
-
-                    VISITOR PASS
-
-                </div>
-
-                <div className="pass-details">
-
-                    <p><strong>Visitor :</strong> {visitor.visitor_name}</p>
-
-                    <p><strong>Phone :</strong> {visitor.phone}</p>
-
-                    <p><strong>Email :</strong> {visitor.email}</p>
-
-                    <p><strong>Host :</strong> {visitor.host_name}</p>
-
-                    <p><strong>Purpose :</strong> {visitor.purpose}</p>
-
-                    <p><strong>Visit Date :</strong> {new Date(visitor.visit_date).toLocaleDateString()}</p>
-
-                    <p><strong>Status :</strong> {visitor.status}</p>
-
-                </div>
-
-                <div className="qr-section">
-
-                    <img
-                        src={visitor.qr_code}
-                        alt="QR"
-                    />
-
-                </div>
-
-                <button
-
-                    className="print-btn"
-
-                    onClick={() => window.print()}
-
-                >
-
-                    🖨 Print Visitor Pass
-
-                </button>
-
+              <div className={`vp-status-chip vp-status-chip--${statusColor}`}>
+                <span className="vp-chip-dot" />
+                {visitor.status}
+              </div>
             </div>
 
+            {/* Right: QR Code */}
+            <div className="vp-pass-qr">
+              <div className="vp-qr-wrap">
+                <img src={visitor.qr_code} alt="Visitor QR Code" />
+              </div>
+              <p className="vp-qr-label">Scan to verify</p>
+              <p className="vp-pass-id">Pass #{String(visitor.id).padStart(6, "0")}</p>
+            </div>
+          </div>
+
+          {/* Pass Footer */}
+          <div className="vp-pass-footer">
+            <p>This pass is valid only for the specified visit date. Present this QR code at the security gate.</p>
+            <p>Generated by <strong>SmartGate Pro</strong> · Secure Visitor Management</p>
+          </div>
         </div>
-
-    );
-
+      </div>
+    </div>
+  );
 }
 
 export default VisitorPass;

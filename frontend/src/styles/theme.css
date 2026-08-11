@@ -1,27 +1,65 @@
-:root{
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
-    --primary:#2563EB;
+:root {
+  /* Core Colors */
+  --bg-base:       #060b18;
+  --bg-surface:    #0d1528;
+  --bg-card:       rgba(13, 21, 40, 0.85);
+  --bg-card-solid: #0d1528;
+  --bg-hover:      rgba(59, 130, 246, 0.08);
 
-    --primary-hover:#1D4ED8;
+  /* Brand */
+  --primary:        #3b82f6;
+  --primary-dark:   #2563eb;
+  --primary-glow:   rgba(59, 130, 246, 0.35);
+  --accent:         #8b5cf6;
+  --accent-glow:    rgba(139, 92, 246, 0.35);
 
-    --secondary:#1E293B;
+  /* Status */
+  --success:        #10b981;
+  --success-glow:   rgba(16, 185, 129, 0.3);
+  --warning:        #f59e0b;
+  --warning-glow:   rgba(245, 158, 11, 0.3);
+  --danger:         #ef4444;
+  --danger-glow:    rgba(239, 68, 68, 0.3);
 
-    --background:#F1F5F9;
+  /* Text */
+  --text-primary:   #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted:     #475569;
 
-    --card:#FFFFFF;
+  /* Borders */
+  --border:         rgba(59, 130, 246, 0.18);
+  --border-subtle:  rgba(255, 255, 255, 0.06);
 
-    --text:#0F172A;
+  /* Shadows & Glows */
+  --shadow-sm:      0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-md:      0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-lg:      0 20px 50px rgba(0, 0, 0, 0.6);
+  --glow-blue:      0 0 20px rgba(59, 130, 246, 0.4), 0 0 40px rgba(59, 130, 246, 0.15);
+  --glow-purple:    0 0 20px rgba(139, 92, 246, 0.4), 0 0 40px rgba(139, 92, 246, 0.15);
+  --glow-green:     0 0 20px rgba(16, 185, 129, 0.4);
+  --glow-red:       0 0 20px rgba(239, 68, 68, 0.4);
 
-    --text-light:#64748B;
+  /* Gradients */
+  --gradient-brand: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  --gradient-hero:  linear-gradient(135deg, #060b18 0%, #0d1b3e 50%, #1a0533 100%);
+  --gradient-card:  linear-gradient(145deg, rgba(59,130,246,0.08), rgba(139,92,246,0.05));
+  --gradient-green: linear-gradient(135deg, #059669, #10b981);
+  --gradient-red:   linear-gradient(135deg, #dc2626, #ef4444);
 
-    --success:#22C55E;
+  /* Radius */
+  --radius-sm:   8px;
+  --radius-md:   14px;
+  --radius-lg:   20px;
+  --radius-xl:   28px;
+  --radius-full: 9999px;
 
-    --danger:#EF4444;
+  /* Sidebar */
+  --sidebar-width: 260px;
+  --sidebar-bg:    #070d1f;
 
-    --border:#CBD5E1;
-
-    --shadow:0 10px 30px rgba(0,0,0,.08);
-
-    --radius:16px;
-
+  /* Transitions */
+  --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
