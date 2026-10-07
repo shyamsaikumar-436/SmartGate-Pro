@@ -20,6 +20,14 @@ const addVisitor = async (req, res) => {
     const qrToken = uuidv4();
     const visitStatus = status || "Approved";
 
+    // Ensure valid DATE string for MySQL (YYYY-MM-DD)
+    let formattedDate = visit_date;
+    if (!formattedDate || formattedDate.trim() === "") {
+        formattedDate = new Date().toISOString().slice(0, 10);
+    }
+
+    const parsedUserId = user_id && !isNaN(parseInt(user_id)) ? parseInt(user_id) : null;
+
     try {
         const qrImage = await QRCode.toDataURL(qrToken);
 
@@ -32,13 +40,13 @@ const addVisitor = async (req, res) => {
         db.query(
             sql,
             [
-                user_id || null,
-                visitor_name,
-                phone,
-                email,
-                host_name,
-                purpose,
-                visit_date,
+                parsedUserId,
+                visitor_name || "Visitor",
+                phone || "N/A",
+                email || "visitor@smartgate.com",
+                host_name || "Host",
+                purpose || "Visit",
+                formattedDate,
                 arrival_time || "10:00 AM",
                 departure_time || "05:00 PM",
                 qrToken,
@@ -46,7 +54,10 @@ const addVisitor = async (req, res) => {
                 visitStatus
             ],
             (err, result) => {
-                if (err) return res.status(500).json(err);
+                if (err) {
+                    console.error("❌ MySQL Error in addVisitor:", err);
+                    return res.status(500).json({ message: err.message || "Failed to insert visitor record into database." });
+                }
 
                 res.status(201).json({
                     message: "Visitor Pass Generated Successfully",
@@ -58,7 +69,8 @@ const addVisitor = async (req, res) => {
             }
         );
     } catch (error) {
-        res.status(500).json(error);
+        console.error("❌ Exception in addVisitor:", error);
+        res.status(500).json({ message: error.message || "Server error while processing visitor pass." });
     }
 };
 

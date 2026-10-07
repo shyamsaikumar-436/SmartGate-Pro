@@ -49,18 +49,22 @@ const register = async (req, res) => {
 
 // Login
 const login = (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, portalRole } = req.body;
+
+    if (!email || !password) {
+        return res.status(400).json({ message: "Email and password are required." });
+    }
 
     const sql = "SELECT * FROM users WHERE email=? OR phone=?";
 
     db.query(sql, [email, email], async (err, result) => {
         if (err) {
-            return res.status(500).json(err);
+            return res.status(500).json({ message: err.message || "Database query error" });
         }
 
         if (result.length === 0) {
             return res.status(404).json({
-                message: "User not found. Please register first."
+                message: "Account not found with these credentials. Please check your details or register first."
             });
         }
 
@@ -70,7 +74,20 @@ const login = (req, res) => {
 
         if (!match) {
             return res.status(401).json({
-                message: "Invalid Password"
+                message: "Invalid password. Please check your credentials."
+            });
+        }
+
+        // Strict Portal Role Check
+        if (portalRole === "admin" && user.role !== "admin" && user.role !== "security") {
+            return res.status(403).json({
+                message: "Access Denied: Customer accounts cannot log in through the Admin Portal. Please switch to the Customer Portal tab."
+            });
+        }
+
+        if (portalRole === "customer" && (user.role === "admin" || user.role === "security")) {
+            return res.status(403).json({
+                message: "Access Denied: Administrator accounts must log in through the Admin Login tab."
             });
         }
 

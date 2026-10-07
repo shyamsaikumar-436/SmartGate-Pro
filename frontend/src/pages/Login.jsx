@@ -31,17 +31,21 @@ function Login() {
     setLoading(true);
 
     try {
-      const res = await API.post("/auth/login", { email, password });
+      const res = await API.post("/auth/login", { email, password, portalRole: role });
       const user = res.data.user;
 
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(user));
 
-      // Redirect based on user role
-      if (user.role === "admin" || user.role === "security") {
+      // Redirect strictly according to portal tab role
+      if ((user.role === "admin" || user.role === "security") && role === "admin") {
         navigate("/dashboard");
-      } else {
+      } else if (user.role === "customer" && role === "customer") {
         navigate("/customer/dashboard");
+      } else {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        setError(`Access Denied: Your account role (${user.role}) does not match the ${role.toUpperCase()} portal.`);
       }
     } catch (err) {
       setError(err.response?.data?.message || "Invalid credentials. Please check your email & password.");
