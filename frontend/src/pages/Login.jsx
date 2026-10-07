@@ -1,17 +1,29 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import API from "../services/api";
-import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaShieldAlt, FaCheckCircle } from "react-icons/fa";
+import { FaEnvelope, FaLock, FaEye, FaEyeSlash, FaShieldAlt, FaCheckCircle, FaUser } from "react-icons/fa";
 import "../styles/Login.css";
 
 function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
 
+  // Determine initial role tab from URL path or default to customer
+  const initialRole = location.pathname.includes("admin") ? "admin" : "customer";
+  const [role, setRole]         = useState(initialRole);
   const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState("");
+
+  useEffect(() => {
+    if (location.pathname.includes("admin")) {
+      setRole("admin");
+    } else if (location.pathname.includes("customer")) {
+      setRole("customer");
+    }
+  }, [location.pathname]);
 
   const loginUser = async (e) => {
     e.preventDefault();
@@ -20,21 +32,34 @@ function Login() {
 
     try {
       const res = await API.post("/auth/login", { email, password });
+      const user = res.data.user;
+
       localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-      navigate("/dashboard");
+      localStorage.setItem("user", JSON.stringify(user));
+
+      // Redirect based on user role
+      if (user.role === "admin" || user.role === "security") {
+        navigate("/dashboard");
+      } else {
+        navigate("/customer/dashboard");
+      }
     } catch (err) {
-      setError(err.response?.data?.message || "Invalid credentials. Please try again.");
+      setError(err.response?.data?.message || "Invalid credentials. Please check your email & password.");
     } finally {
       setLoading(false);
     }
   };
 
-  const features = [
-    "QR-based visitor registration",
-    "Real-time entry & exit tracking",
-    "Instant visitor pass generation",
-    "Secure MySQL data storage",
+  const features = role === "admin" ? [
+    "Real-time entry & exit gate tracking",
+    "Live laptop camera QR scanner",
+    "Comprehensive visitor log history",
+    "Role-based access & statistics",
+  ] : [
+    "Self-register your upcoming visit",
+    "Instant QR Visitor Pass generation",
+    "Download or print your pass anytime",
+    "Show QR code at gate for seamless entry",
   ];
 
   return (
@@ -54,10 +79,13 @@ function Login() {
             <FaShieldAlt />
           </div>
           <h1 className="brand-name">SmartGate</h1>
-          <p className="brand-sub">QR-Based Visitor Management System</p>
+          <p className="brand-sub">
+            {role === "admin" ? "Administrator & Security Portal" : "Customer & Visitor Self-Service Portal"}
+          </p>
           <p className="brand-desc">
-            Digitize your gate operations. Secure visitor registration, instant QR passes,
-            and full entry/exit tracking — all in one place.
+            {role === "admin"
+              ? "Manage premise access, monitor live visitors, scan QR passes at entry/exit gates, and analyze visitor logs."
+              : "Generate your QR visitor pass online, view active passes, print or download your pass to present at the gate upon arrival."}
           </p>
           <ul className="feature-list">
             {features.map((f, i) => (
@@ -73,9 +101,70 @@ function Login() {
       {/* Right Panel */}
       <div className="login-right">
         <form className="login-box" onSubmit={loginUser}>
+          {/* Role Switcher Tabs */}
+          <div className="role-switcher-tabs" style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "8px",
+            background: "rgba(255,255,255,0.04)",
+            padding: "6px",
+            borderRadius: "var(--radius-md)",
+            border: "1px solid var(--border-subtle)",
+            marginBottom: "24px"
+          }}>
+            <button
+              type="button"
+              className={`role-tab ${role === "customer" ? "active" : ""}`}
+              onClick={() => setRole("customer")}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                padding: "10px",
+                borderRadius: "var(--radius-sm)",
+                border: "none",
+                background: role === "customer" ? "var(--gradient-brand)" : "transparent",
+                color: role === "customer" ? "#fff" : "var(--text-secondary)",
+                fontWeight: "600",
+                fontSize: "14px",
+                cursor: "pointer",
+                transition: "var(--transition)"
+              }}
+            >
+              <FaUser /> Customer Portal
+            </button>
+            <button
+              type="button"
+              className={`role-tab ${role === "admin" ? "active" : ""}`}
+              onClick={() => setRole("admin")}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                padding: "10px",
+                borderRadius: "var(--radius-sm)",
+                border: "none",
+                background: role === "admin" ? "var(--gradient-brand)" : "transparent",
+                color: role === "admin" ? "#fff" : "var(--text-secondary)",
+                fontWeight: "600",
+                fontSize: "14px",
+                cursor: "pointer",
+                transition: "var(--transition)"
+              }}
+            >
+              <FaShieldAlt /> Admin Login
+            </button>
+          </div>
+
           <div className="login-box-header">
-            <h2>Welcome Back 👋</h2>
-            <p>Sign in to your SmartGate admin panel</p>
+            <h2>{role === "admin" ? "Admin Sign In 🛡️" : "Customer Login 👋"}</h2>
+            <p>
+              {role === "admin"
+                ? "Sign in with your administrative credentials"
+                : "Log in to enter your details & print your QR pass"}
+            </p>
           </div>
 
           {error && (
@@ -90,7 +179,7 @@ function Login() {
               <FaEnvelope className="input-icon" />
               <input
                 type="email"
-                placeholder="admin@smartgate.com"
+                placeholder={role === "admin" ? "admin@smartgate.com" : "customer@example.com"}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -122,14 +211,14 @@ function Login() {
             {loading ? (
               <span className="spinner" />
             ) : (
-              "Sign In"
+              role === "admin" ? "Sign In as Administrator" : "Sign In to Customer Portal"
             )}
           </button>
 
-          <p className="login-footer-text" style={{ marginTop: '16px' }}>
+          <p className="login-footer-text" style={{ marginTop: '20px' }}>
             Don't have an account?{" "}
-            <Link to="/signup" style={{ color: "var(--primary)", textDecoration: "none", fontWeight: "600" }}>
-              Sign up
+            <Link to={role === "admin" ? "/signup/admin" : "/signup/customer"} style={{ color: "var(--primary)", textDecoration: "none", fontWeight: "600" }}>
+              Sign up as {role === "admin" ? "Admin" : "Customer"}
             </Link>
           </p>
         </form>

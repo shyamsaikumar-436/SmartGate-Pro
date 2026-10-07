@@ -1,12 +1,15 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import API from "../services/api";
 import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaShieldAlt, FaCheckCircle } from "react-icons/fa";
-import "../styles/Login.css"; // Reusing the awesome login styling
+import "../styles/Login.css";
 
 function Signup() {
   const navigate = useNavigate();
+  const location = useLocation();
 
+  const initialRole = location.pathname.includes("admin") ? "admin" : "customer";
+  const [role, setRole]         = useState(initialRole);
   const [full_name, setFullName] = useState("");
   const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
@@ -15,6 +18,14 @@ function Signup() {
   const [error, setError]       = useState("");
   const [success, setSuccess]   = useState("");
 
+  useEffect(() => {
+    if (location.pathname.includes("admin")) {
+      setRole("admin");
+    } else if (location.pathname.includes("customer")) {
+      setRole("customer");
+    }
+  }, [location.pathname]);
+
   const registerUser = async (e) => {
     e.preventDefault();
     setError("");
@@ -22,11 +33,11 @@ function Signup() {
     setLoading(true);
 
     try {
-      await API.post("/auth/register", { full_name, email, password, role: "admin" });
-      setSuccess("Account created successfully! Redirecting to login...");
+      await API.post("/auth/register", { full_name, email, password, role });
+      setSuccess(`Account created as ${role === "admin" ? "Administrator" : "Customer"}! Redirecting to login...`);
       setTimeout(() => {
-        navigate("/");
-      }, 2000);
+        navigate(role === "admin" ? "/login/admin" : "/login/customer");
+      }, 1800);
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed. Please try again.");
     } finally {
@@ -34,11 +45,16 @@ function Signup() {
     }
   };
 
-  const features = [
-    "QR-based visitor registration",
-    "Real-time entry & exit tracking",
-    "Instant visitor pass generation",
-    "Secure MySQL data storage",
+  const features = role === "admin" ? [
+    "Manage premise gate security & staff",
+    "Real-time entry & exit confirmation",
+    "Live camera QR code validation",
+    "Comprehensive visitor analytics",
+  ] : [
+    "Register your own visits directly online",
+    "Generate QR pass without admin delay",
+    "Print or download pass to show at gate",
+    "Access visit history & pass details",
   ];
 
   return (
@@ -58,10 +74,13 @@ function Signup() {
             <FaShieldAlt />
           </div>
           <h1 className="brand-name">SmartGate</h1>
-          <p className="brand-sub">QR-Based Visitor Management System</p>
+          <p className="brand-sub">
+            {role === "admin" ? "Admin Registration Portal" : "Customer Self-Service Signup"}
+          </p>
           <p className="brand-desc">
-            Digitize your gate operations. Secure visitor registration, instant QR passes,
-            and full entry/exit tracking — all in one place.
+            {role === "admin"
+              ? "Create an administrator account to oversee gate entry, monitor visitor logs, and confirm visits."
+              : "Create a customer account to enter your visit details, generate instant QR passes, and print them before arriving."}
           </p>
           <ul className="feature-list">
             {features.map((f, i) => (
@@ -77,9 +96,70 @@ function Signup() {
       {/* Right Panel */}
       <div className="login-right">
         <form className="login-box" onSubmit={registerUser}>
+          {/* Role Switcher Tabs */}
+          <div className="role-switcher-tabs" style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "8px",
+            background: "rgba(255,255,255,0.04)",
+            padding: "6px",
+            borderRadius: "var(--radius-md)",
+            border: "1px solid var(--border-subtle)",
+            marginBottom: "24px"
+          }}>
+            <button
+              type="button"
+              className={`role-tab ${role === "customer" ? "active" : ""}`}
+              onClick={() => setRole("customer")}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                padding: "10px",
+                borderRadius: "var(--radius-sm)",
+                border: "none",
+                background: role === "customer" ? "var(--gradient-brand)" : "transparent",
+                color: role === "customer" ? "#fff" : "var(--text-secondary)",
+                fontWeight: "600",
+                fontSize: "14px",
+                cursor: "pointer",
+                transition: "var(--transition)"
+              }}
+            >
+              <FaUser /> Customer Account
+            </button>
+            <button
+              type="button"
+              className={`role-tab ${role === "admin" ? "active" : ""}`}
+              onClick={() => setRole("admin")}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                padding: "10px",
+                borderRadius: "var(--radius-sm)",
+                border: "none",
+                background: role === "admin" ? "var(--gradient-brand)" : "transparent",
+                color: role === "admin" ? "#fff" : "var(--text-secondary)",
+                fontWeight: "600",
+                fontSize: "14px",
+                cursor: "pointer",
+                transition: "var(--transition)"
+              }}
+            >
+              <FaShieldAlt /> Admin Account
+            </button>
+          </div>
+
           <div className="login-box-header">
-            <h2>Create an Account 🚀</h2>
-            <p>Sign up to manage your gates securely</p>
+            <h2>{role === "admin" ? "Create Admin Account 🛡️" : "Register as Customer 👤"}</h2>
+            <p>
+              {role === "admin"
+                ? "Sign up for administrative & gate access"
+                : "Sign up to generate and print your own visitor QR passes"}
+            </p>
           </div>
 
           {error && (
@@ -114,7 +194,7 @@ function Signup() {
               <FaEnvelope className="input-icon" />
               <input
                 type="email"
-                placeholder="admin@smartgate.com"
+                placeholder={role === "admin" ? "admin@smartgate.com" : "customer@example.com"}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -147,13 +227,13 @@ function Signup() {
             {loading ? (
               <span className="spinner" />
             ) : (
-              "Sign Up"
+              role === "admin" ? "Create Admin Account" : "Register Customer Account"
             )}
           </button>
 
-          <p className="login-footer-text" style={{ marginTop: '16px' }}>
+          <p className="login-footer-text" style={{ marginTop: '20px' }}>
             Already have an account?{" "}
-            <Link to="/" style={{ color: "var(--primary)", textDecoration: "none", fontWeight: "600" }}>
+            <Link to={role === "admin" ? "/login/admin" : "/login/customer"} style={{ color: "var(--primary)", textDecoration: "none", fontWeight: "600" }}>
               Sign in
             </Link>
           </p>

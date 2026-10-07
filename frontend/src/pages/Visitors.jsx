@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
 import Sidebar from "../components/Sidebar";
-import { FaSearch, FaEye, FaUsers, FaUserCheck, FaHourglass } from "react-icons/fa";
+import { FaSearch, FaEye, FaUsers, FaUserCheck, FaHourglass, FaCheck, FaTimes } from "react-icons/fa";
 import "../styles/Visitors.css";
 
 function Visitors() {
@@ -29,21 +29,41 @@ function Visitors() {
     }
   };
 
+  const handleApprove = async (id) => {
+    try {
+      await API.put(`/visitors/approve/${id}`);
+      loadVisitors();
+    } catch (err) {
+      alert("Failed to approve request");
+    }
+  };
+
+  const handleReject = async (id) => {
+    try {
+      await API.put(`/visitors/reject/${id}`);
+      loadVisitors();
+    } catch (err) {
+      alert("Failed to reject request");
+    }
+  };
+
   const filtered = visitors.filter((v) => {
-    const matchSearch = v.visitor_name.toLowerCase().includes(search.toLowerCase()) ||
-      v.host_name?.toLowerCase().includes(search.toLowerCase());
-    const matchStatus = statusFilter === "All" || v.status === statusFilter;
+    const matchSearch = (v.visitor_name || "").toLowerCase().includes(search.toLowerCase()) ||
+      (v.host_name || "").toLowerCase().includes(search.toLowerCase()) ||
+      (v.phone || "").includes(search);
+    const matchStatus = statusFilter === "All" || (v.status || "").toLowerCase() === statusFilter.toLowerCase();
     return matchSearch && matchStatus;
   });
 
   const counts = {
-    All:     visitors.length,
-    Pending: visitors.filter((v) => v.status === "Pending").length,
-    Entered: visitors.filter((v) => v.status === "Entered").length,
-    Exited:  visitors.filter((v) => v.status === "Exited").length,
+    All:       visitors.length,
+    Pending:   visitors.filter((v) => v.status === "Pending").length,
+    Approved:  visitors.filter((v) => v.status === "Approved").length,
+    Entered:   visitors.filter((v) => v.status === "Entered").length,
+    Completed: visitors.filter((v) => v.status === "Completed" || v.status === "Exited").length,
   };
 
-  const statusFilters = ["All", "Pending", "Entered", "Exited"];
+  const statusFilters = ["All", "Pending", "Approved", "Entered", "Completed"];
 
   return (
     <div className="vh-layout">
@@ -53,12 +73,12 @@ function Visitors() {
         {/* Header */}
         <div className="vh-header">
           <div>
-            <h1 className="vh-title">Visitor History</h1>
-            <p className="vh-sub">Browse and manage all visitor records</p>
+            <h1 className="vh-title">Visitor Management & Records</h1>
+            <p className="vh-sub">Review visit requests, approve visits, monitor entry & exit logs</p>
           </div>
           <div className="vh-stats-pills">
             <span className="pill pill--total"><FaUsers /> {counts.All} Total</span>
-            <span className="pill pill--green"><FaUserCheck /> {counts.Entered} Inside</span>
+            <span className="pill pill--green"><FaUserCheck /> {counts.Entered} Inside Now</span>
             <span className="pill pill--yellow"><FaHourglass /> {counts.Pending} Pending</span>
           </div>
         </div>
@@ -69,7 +89,7 @@ function Visitors() {
             <FaSearch className="vh-search-icon" />
             <input
               type="text"
-              placeholder="Search by visitor or host name..."
+              placeholder="Search by visitor name, phone, or person to meet..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="vh-search"
@@ -83,7 +103,7 @@ function Visitors() {
                 onClick={() => setStatusFilter(s)}
               >
                 {s}
-                <span className="filter-count">{counts[s]}</span>
+                <span className="filter-count">{counts[s] ?? 0}</span>
               </button>
             ))}
           </div>
@@ -99,7 +119,7 @@ function Visitors() {
           ) : filtered.length === 0 ? (
             <div className="vh-empty">
               <div className="vh-empty-icon">👤</div>
-              <h3>No visitors found</h3>
+              <h3>No visitor records found</h3>
               <p>Try adjusting your search or filter criteria.</p>
             </div>
           ) : (
@@ -110,11 +130,12 @@ function Visitors() {
                     <th>#</th>
                     <th>Visitor</th>
                     <th>Phone</th>
-                    <th>Host</th>
+                    <th>Person to Meet</th>
                     <th>Purpose</th>
-                    <th>Date</th>
+                    <th>Visit Date</th>
+                    <th>Times</th>
                     <th>Status</th>
-                    <th>Action</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -124,12 +145,16 @@ function Visitors() {
                       <td className="vh-name">
                         <div className="visitor-cell">
                           <div className="visitor-avatar">
-                            {v.visitor_name.charAt(0).toUpperCase()}
+                            {(v.visitor_name || "V").charAt(0).toUpperCase()}
                           </div>
-                          <span>{v.visitor_name}</span>
+                          <div>
+                            <span style={{ fontWeight: 600 }}>{v.visitor_name}</span>
+                            <br />
+                            <span style={{ fontSize: 11, color: "var(--text-muted)" }}>{v.email}</span>
+                          </div>
                         </div>
                       </td>
-                      <td className="vh-phone">{v.phone}</td>
+                      <td className="vh-phone">{v.phone || "N/A"}</td>
                       <td className="vh-host">{v.host_name}</td>
                       <td className="vh-purpose">
                         <span className="purpose-chip">{v.purpose}</span>
@@ -139,19 +164,44 @@ function Visitors() {
                           day: "2-digit", month: "short", year: "numeric"
                         })}
                       </td>
+                      <td style={{ fontSize: 12, color: "var(--text-secondary)" }}>
+                        {v.arrival_time || "10:00 AM"} - {v.departure_time || "11:00 AM"}
+                      </td>
                       <td>
-                        <span className={`status-badge status-badge--${v.status.toLowerCase()}`}>
+                        <span className={`status-badge status-badge--${(v.status || 'approved').toLowerCase()}`}>
                           <span className="badge-dot" />
                           {v.status}
                         </span>
                       </td>
                       <td>
-                        <button
-                          className="view-btn"
-                          onClick={() => navigate(`/visitor-pass/${v.id}`)}
-                        >
-                          <FaEye /> View Pass
-                        </button>
+                        <div style={{ display: "flex", gap: "6px" }}>
+                          {v.status === "Pending" && (
+                            <>
+                              <button
+                                className="view-btn"
+                                style={{ background: "rgba(16,185,129,0.15)", color: "#10b981", borderColor: "rgba(16,185,129,0.3)" }}
+                                onClick={() => handleApprove(v.id)}
+                                title="Approve Visit Request"
+                              >
+                                <FaCheck /> Approve
+                              </button>
+                              <button
+                                className="view-btn"
+                                style={{ background: "rgba(239,68,68,0.15)", color: "#ef4444", borderColor: "rgba(239,68,68,0.3)" }}
+                                onClick={() => handleReject(v.id)}
+                                title="Reject Visit Request"
+                              >
+                                <FaTimes /> Reject
+                              </button>
+                            </>
+                          )}
+                          <button
+                            className="view-btn"
+                            onClick={() => navigate(`/visitor-pass/${v.id}`)}
+                          >
+                            <FaEye /> Pass
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

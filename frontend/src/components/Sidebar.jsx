@@ -1,11 +1,12 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   FaHome,
-  FaUsers,
+  FaUserPlus,
   FaHistory,
   FaQrcode,
   FaSignOutAlt,
   FaShieldAlt,
+  FaBuilding
 } from "react-icons/fa";
 import "../styles/Sidebar.css";
 
@@ -13,30 +14,41 @@ function Sidebar() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  const getUser = () => {
+    try {
+      const stored = localStorage.getItem("user");
+      if (stored && stored !== "undefined" && stored !== "null") {
+        return JSON.parse(stored);
+      }
+    } catch (e) {}
+    return {};
+  };
+
+  const user = getUser();
 
   const logout = () => {
     localStorage.clear();
-    navigate("/");
+    navigate("/admin/login");
   };
 
   const navItems = [
-    { icon: <FaHome />, label: "Dashboard", path: "/dashboard" },
-    { icon: <FaUsers />, label: "Add Visitor", path: "/addvisitor" },
+    { icon: <FaHome />, label: "Admin Dashboard", path: "/dashboard" },
+    { icon: <FaBuilding />, label: "Currently Inside", path: "/admin/inside" },
     { icon: <FaHistory />, label: "Visitor History", path: "/visitors" },
-    { icon: <FaQrcode />, label: "Scan QR", path: "/scan" },
+    { icon: <FaUserPlus />, label: "Add Visitor", path: "/addvisitor" },
+    { icon: <FaQrcode />, label: "Scan Gate QR", path: "/scan" },
   ];
 
   return (
     <aside className="sidebar">
       {/* Logo */}
-      <div className="sidebar-logo">
+      <div className="sidebar-logo" onClick={() => navigate("/dashboard")} style={{ cursor: "pointer" }}>
         <div className="logo-icon">
           <FaShieldAlt />
         </div>
         <div className="logo-text">
           <h2>SmartGate</h2>
-          <span>Pro</span>
+          <span>Admin Portal</span>
         </div>
       </div>
 
@@ -63,10 +75,10 @@ function Sidebar() {
           </div>
           <div className="user-meta">
             <p className="user-name">{user?.full_name || "Admin"}</p>
-            <p className="user-role">Administrator</p>
+            <p className="user-role">Gate Administrator</p>
           </div>
         </div>
-        <button className="logout-btn" onClick={logout}>
+        <button className="logout-btn" onClick={logout} title="Logout">
           <FaSignOutAlt />
           <span>Logout</span>
         </button>

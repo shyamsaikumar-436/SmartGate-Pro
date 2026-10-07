@@ -55,13 +55,33 @@ function VisitorPass() {
     <div className="vp-page">
       {/* Toolbar (hidden on print) */}
       <div className="vp-toolbar no-print">
-        <button className="vp-back-btn" onClick={() => navigate(-1)}>
-          <FaArrowLeft /> Back
+        <button
+          className="vp-back-btn"
+          onClick={() => {
+            const user = JSON.parse(localStorage.getItem("user") || "{}");
+            if (user.role === "customer") {
+              navigate("/customer/dashboard");
+            } else {
+              navigate("/dashboard");
+            }
+          }}
+        >
+          <FaArrowLeft /> Back to Portal
         </button>
         <h2 className="vp-toolbar-title">Visitor Pass Preview</h2>
-        <button className="vp-print-btn" onClick={() => window.print()}>
-          <FaPrint /> Print Pass
-        </button>
+        <div style={{ display: "flex", gap: "10px" }}>
+          <a
+            href={visitor.qr_code}
+            download={`QR_Pass_${visitor.id}.png`}
+            className="vp-back-btn"
+            style={{ textDecoration: "none" }}
+          >
+            Download QR
+          </a>
+          <button className="vp-print-btn" onClick={() => window.print()}>
+            <FaPrint /> Print Pass
+          </button>
+        </div>
       </div>
 
       {/* Pass Card */}

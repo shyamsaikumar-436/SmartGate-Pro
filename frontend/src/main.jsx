@@ -4,10 +4,12 @@ import { BrowserRouter } from "react-router-dom";
 
 import "./index.css";
 import App from "./App";
-
+import ErrorBoundary from "./components/ErrorBoundary";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
-    <BrowserRouter>
-        <App />
-    </BrowserRouter>
+    <ErrorBoundary>
+        <BrowserRouter>
+            <App />
+        </BrowserRouter>
+    </ErrorBoundary>
 );

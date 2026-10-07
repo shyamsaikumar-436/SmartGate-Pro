@@ -7,7 +7,18 @@ import "../styles/Dashboard.css";
 
 function Dashboard() {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+  const getUser = () => {
+    try {
+      const stored = localStorage.getItem("user");
+      if (stored && stored !== "undefined" && stored !== "null") {
+        return JSON.parse(stored);
+      }
+    } catch (e) {}
+    return {};
+  };
+
+  const user = getUser();
 
   const [stats, setStats] = useState({
     totalVisitors: 0,
