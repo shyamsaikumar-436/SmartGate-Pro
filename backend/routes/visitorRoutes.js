@@ -13,7 +13,8 @@ const {
     getVisitorById,
     getCustomerVisitors,
     approveRequest,
-    rejectRequest
+    rejectRequest,
+    clearAllVisitors
 } = require("../controllers/visitorController");
 
 router.post("/add", addVisitor);
@@ -35,6 +36,8 @@ router.put("/exit/:token", confirmExit);
 router.put("/approve/:id", approveRequest);
 
 router.put("/reject/:id", rejectRequest);
+
+router.delete("/clear-all", clearAllVisitors);
 
 router.get("/:id", getVisitorById);
 

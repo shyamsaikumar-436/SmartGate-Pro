@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
 import Sidebar from "../components/Sidebar";
-import { FaSearch, FaEye, FaUsers, FaUserCheck, FaHourglass, FaCheck, FaTimes, FaSignOutAlt } from "react-icons/fa";
+import { FaSearch, FaEye, FaUsers, FaUserCheck, FaHourglass, FaCheck, FaTimes, FaSignOutAlt, FaTrash } from "react-icons/fa";
 import "../styles/Visitors.css";
 
 function Visitors() {
@@ -66,6 +66,17 @@ function Visitors() {
     }
   };
 
+  const handleClearAll = async () => {
+    if (!window.confirm("⚠️ ARE YOU SURE? This will permanently delete ALL visitor records from both Admin and Customer views.")) return;
+    try {
+      await API.delete("/visitors/clear-all");
+      alert("All visitor records have been successfully cleared!");
+      loadVisitors();
+    } catch (err) {
+      alert("Failed to clear visitor records.");
+    }
+  };
+
   const filtered = visitors.filter((v) => {
     const matchSearch = (v.visitor_name || "").toLowerCase().includes(search.toLowerCase()) ||
       (v.host_name || "").toLowerCase().includes(search.toLowerCase()) ||
@@ -95,10 +106,18 @@ function Visitors() {
             <h1 className="vh-title">Visitor Management & Records</h1>
             <p className="vh-sub">Review visit requests, approve visits, monitor entry & exit logs</p>
           </div>
-          <div className="vh-stats-pills">
+          <div className="vh-stats-pills" style={{ display: "flex", gap: "10px", alignItems: "center" }}>
             <span className="pill pill--total"><FaUsers /> {counts.All} Total</span>
             <span className="pill pill--green"><FaUserCheck /> {counts.Entered} Inside Now</span>
             <span className="pill pill--yellow"><FaHourglass /> {counts.Pending} Pending</span>
+            <button
+              onClick={handleClearAll}
+              className="view-btn"
+              style={{ background: "rgba(239,68,68,0.15)", color: "#ef4444", borderColor: "rgba(239,68,68,0.3)", padding: "6px 14px" }}
+              title="Clear all visitor records from database"
+            >
+              <FaTrash /> Clear All Records
+            </button>
           </div>
         </div>
 

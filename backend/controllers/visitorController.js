@@ -231,6 +231,20 @@ const rejectRequest = (req, res) => {
     });
 };
 
+// Clear All Visitor Records
+const clearAllVisitors = (req, res) => {
+    const sqlDelete = `DELETE FROM visitors`;
+    const sqlReset = `ALTER TABLE visitors AUTO_INCREMENT = 1`;
+
+    db.query(sqlDelete, (err) => {
+        if (err) return res.status(500).json(err);
+        db.query(sqlReset, (resetErr) => {
+            if (resetErr) console.log("Auto increment reset warning:", resetErr.message);
+            res.json({ message: "All visitor records cleared successfully!" });
+        });
+    });
+};
+
 module.exports = {
     addVisitor,
     getDashboardStats,
@@ -242,5 +256,6 @@ module.exports = {
     getVisitorById,
     getCustomerVisitors,
     approveRequest,
-    rejectRequest
+    rejectRequest,
+    clearAllVisitors
 };
