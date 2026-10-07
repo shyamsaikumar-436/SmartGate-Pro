@@ -47,6 +47,15 @@ function Visitors() {
     }
   };
 
+  const handleEntry = async (identifier) => {
+    try {
+      await API.put(`/visitors/entry/${identifier}`);
+      loadVisitors();
+    } catch (err) {
+      alert("Failed to mark entry");
+    }
+  };
+
   const handleExit = async (identifier) => {
     if (!window.confirm("Confirm exit for this visitor?")) return;
     try {
@@ -204,6 +213,16 @@ function Visitors() {
                                 <FaTimes /> Reject
                               </button>
                             </>
+                          )}
+                          {v.status === "Approved" && (
+                            <button
+                              className="view-btn"
+                              style={{ background: "rgba(16,185,129,0.15)", color: "#10b981", borderColor: "rgba(16,185,129,0.3)" }}
+                              onClick={() => handleEntry(v.qr_token || v.id)}
+                              title="Confirm Visitor Gate Entry"
+                            >
+                              <FaCheck /> Mark Entry
+                            </button>
                           )}
                           {v.status === "Entered" && (
                             <button

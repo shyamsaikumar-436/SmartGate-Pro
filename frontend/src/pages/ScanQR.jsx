@@ -70,32 +70,41 @@ function ScanQR() {
   };
 
   const confirmEntry = async () => {
+    if (!visitor) return;
     setActionLoading(true);
+    const tokenOrId = visitor.qr_token || visitor.id;
     try {
-      await API.put(`/visitors/entry/${visitor.qr_token}`);
-      const res = await API.get(`/visitors/scan/${visitor.qr_token}`);
-      setVisitor(res.data);
-      setActionMsg("✅ Entry confirmed successfully!");
+      await API.put(`/visitors/entry/${tokenOrId}`);
+      setVisitor((prev) => ({ ...prev, status: "Entered" }));
+      setActionMsg("✅ Entry confirmed successfully! Visitor is now INSIDE.");
     } catch (err) {
       console.log(err);
+      setActionMsg("❌ Failed to confirm entry. Please try again.");
     } finally {
       setActionLoading(false);
     }
   };
 
   const confirmExit = async () => {
+    if (!visitor) return;
     setActionLoading(true);
+    const tokenOrId = visitor.qr_token || visitor.id;
     try {
-      await API.put(`/visitors/exit/${visitor.qr_token}`);
-      const res = await API.get(`/visitors/scan/${visitor.qr_token}`);
-      setVisitor(res.data);
-      setActionMsg("🚪 Exit confirmed successfully!");
+      await API.put(`/visitors/exit/${tokenOrId}`);
+      setVisitor((prev) => ({ ...prev, status: "Exited" }));
+      setActionMsg("🚪 Exit confirmed successfully! Visitor has EXITED.");
     } catch (err) {
       console.log(err);
+      setActionMsg("❌ Failed to confirm exit. Please try again.");
     } finally {
       setActionLoading(false);
     }
   };
+
+  const statusUpper = (visitor?.status || "").toUpperCase();
+  const isPendingOrApproved = statusUpper === "PENDING" || statusUpper === "APPROVED";
+  const isEntered = statusUpper === "ENTERED";
+  const isExited = statusUpper === "EXITED" || statusUpper === "COMPLETED";
 
   const details = visitor ? [
     { icon: <FaUser />,        label: "Name",       value: visitor.visitor_name },
@@ -193,7 +202,7 @@ function ScanQR() {
 
                 {/* Action Buttons */}
                 <div className="sq-actions">
-                  {(visitor.status === "Pending" || visitor.status === "Approved") && (
+                  {isPendingOrApproved && (
                     <button
                       className="sq-entry-btn"
                       onClick={confirmEntry}
@@ -203,7 +212,7 @@ function ScanQR() {
                       Confirm Entry
                     </button>
                   )}
-                  {visitor.status === "Entered" && (
+                  {isEntered && (
                     <button
                       className="sq-exit-btn"
                       onClick={confirmExit}
@@ -213,7 +222,7 @@ function ScanQR() {
                       Confirm Exit
                     </button>
                   )}
-                  {(visitor.status === "Exited" || visitor.status === "Completed") && (
+                  {isExited && (
                     <div className="sq-exited-msg">
                       <FaTimesCircle /> Visitor has already exited
                     </div>

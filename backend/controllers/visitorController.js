@@ -132,13 +132,13 @@ const getCurrentlyInside = (req, res) => {
     });
 };
 
-// Get Visitor by QR Code Token
+// Get Visitor by QR Code Token or ID
 const getVisitorByQR = (req, res) => {
     const { token } = req.params;
 
-    const sql = `SELECT * FROM visitors WHERE qr_token = ?`;
+    const sql = `SELECT * FROM visitors WHERE qr_token = ? OR id = ?`;
 
-    db.query(sql, [token], (err, result) => {
+    db.query(sql, [token, token], (err, result) => {
         if (err) return res.status(500).json(err);
         if (result.length === 0) return res.status(404).json({ message: "Visitor Not Found" });
         res.json(result[0]);
