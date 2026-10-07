@@ -193,7 +193,7 @@ function ScanQR() {
 
                 {/* Action Buttons */}
                 <div className="sq-actions">
-                  {visitor.status === "Pending" && (
+                  {(visitor.status === "Pending" || visitor.status === "Approved") && (
                     <button
                       className="sq-entry-btn"
                       onClick={confirmEntry}
@@ -213,7 +213,7 @@ function ScanQR() {
                       Confirm Exit
                     </button>
                   )}
-                  {visitor.status === "Exited" && (
+                  {(visitor.status === "Exited" || visitor.status === "Completed") && (
                     <div className="sq-exited-msg">
                       <FaTimesCircle /> Visitor has already exited
                     </div>

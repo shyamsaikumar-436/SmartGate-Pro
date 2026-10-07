@@ -152,10 +152,10 @@ const confirmEntry = (req, res) => {
     const sql = `
         UPDATE visitors
         SET status = 'Entered', entry_time = NOW()
-        WHERE qr_token = ?
+        WHERE qr_token = ? OR id = ?
     `;
 
-    db.query(sql, [token], (err) => {
+    db.query(sql, [token, token], (err) => {
         if (err) return res.status(500).json(err);
         res.json({ message: "Visitor Entry Confirmed" });
     });
@@ -167,11 +167,11 @@ const confirmExit = (req, res) => {
 
     const sql = `
         UPDATE visitors
-        SET status = 'Completed', exit_time = NOW()
-        WHERE qr_token = ?
+        SET status = 'Exited', exit_time = NOW()
+        WHERE qr_token = ? OR id = ?
     `;
 
-    db.query(sql, [token], (err) => {
+    db.query(sql, [token, token], (err) => {
         if (err) return res.status(500).json(err);
         res.json({ message: "Visitor Exit Confirmed" });
     });

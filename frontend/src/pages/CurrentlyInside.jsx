@@ -2,13 +2,14 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
 import Sidebar from "../components/Sidebar";
-import { FaUserCheck, FaClock, FaEye, FaSync, FaShieldAlt } from "react-icons/fa";
+import { FaUserCheck, FaClock, FaEye, FaSync, FaSignOutAlt } from "react-icons/fa";
 import "../styles/Visitors.css";
 
 function CurrentlyInside() {
   const navigate = useNavigate();
   const [visitors, setVisitors] = useState([]);
   const [loading, setLoading]   = useState(true);
+  const [actionLoading, setActionLoading] = useState(null);
 
   useEffect(() => {
     loadInsideVisitors();
@@ -25,6 +26,19 @@ function CurrentlyInside() {
       console.log("Failed to load inside visitors", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleExit = async (identifier) => {
+    if (!window.confirm("Confirm exit for this visitor?")) return;
+    setActionLoading(identifier);
+    try {
+      await API.put(`/visitors/exit/${identifier}`);
+      loadInsideVisitors();
+    } catch (err) {
+      alert("Failed to confirm exit");
+    } finally {
+      setActionLoading(null);
     }
   };
 
@@ -110,12 +124,23 @@ function CurrentlyInside() {
                         Pass #{String(v.id).padStart(6, "0")}
                       </td>
                       <td>
-                        <button
-                          className="view-btn"
-                          onClick={() => navigate(`/visitor-pass/${v.id}`)}
-                        >
-                          <FaEye /> View Pass
-                        </button>
+                        <div style={{ display: "flex", gap: "6px" }}>
+                          <button
+                            className="view-btn"
+                            style={{ background: "rgba(239,68,68,0.15)", color: "#ef4444", borderColor: "rgba(239,68,68,0.3)" }}
+                            onClick={() => handleExit(v.qr_token || v.id)}
+                            disabled={actionLoading === (v.qr_token || v.id)}
+                            title="Confirm Visitor Exit"
+                          >
+                            <FaSignOutAlt /> {actionLoading === (v.qr_token || v.id) ? "Exiting..." : "Mark Exit"}
+                          </button>
+                          <button
+                            className="view-btn"
+                            onClick={() => navigate(`/visitor-pass/${v.id}`)}
+                          >
+                            <FaEye /> View Pass
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
 import Sidebar from "../components/Sidebar";
-import { FaSearch, FaEye, FaUsers, FaUserCheck, FaHourglass, FaCheck, FaTimes } from "react-icons/fa";
+import { FaSearch, FaEye, FaUsers, FaUserCheck, FaHourglass, FaCheck, FaTimes, FaSignOutAlt } from "react-icons/fa";
 import "../styles/Visitors.css";
 
 function Visitors() {
@@ -44,6 +44,16 @@ function Visitors() {
       loadVisitors();
     } catch (err) {
       alert("Failed to reject request");
+    }
+  };
+
+  const handleExit = async (identifier) => {
+    if (!window.confirm("Confirm exit for this visitor?")) return;
+    try {
+      await API.put(`/visitors/exit/${identifier}`);
+      loadVisitors();
+    } catch (err) {
+      alert("Failed to confirm exit");
     }
   };
 
@@ -194,6 +204,16 @@ function Visitors() {
                                 <FaTimes /> Reject
                               </button>
                             </>
+                          )}
+                          {v.status === "Entered" && (
+                            <button
+                              className="view-btn"
+                              style={{ background: "rgba(239,68,68,0.15)", color: "#ef4444", borderColor: "rgba(239,68,68,0.3)" }}
+                              onClick={() => handleExit(v.qr_token || v.id)}
+                              title="Confirm Visitor Exit"
+                            >
+                              <FaSignOutAlt /> Mark Exit
+                            </button>
                           )}
                           <button
                             className="view-btn"
