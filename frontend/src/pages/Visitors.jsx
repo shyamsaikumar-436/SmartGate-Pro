@@ -52,7 +52,7 @@ function Visitors() {
       await API.put(`/visitors/entry/${identifier}`);
       loadVisitors();
     } catch (err) {
-      alert("Failed to mark entry");
+      alert(err.response?.data?.message || "Failed to mark entry");
     }
   };
 
@@ -62,7 +62,7 @@ function Visitors() {
       await API.put(`/visitors/exit/${identifier}`);
       loadVisitors();
     } catch (err) {
-      alert("Failed to confirm exit");
+      alert(err.response?.data?.message || "Failed to confirm exit");
     }
   };
 

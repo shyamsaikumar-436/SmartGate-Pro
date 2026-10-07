@@ -36,7 +36,7 @@ function CurrentlyInside() {
       await API.put(`/visitors/exit/${identifier}`);
       loadInsideVisitors();
     } catch (err) {
-      alert("Failed to confirm exit");
+      alert(err.response?.data?.message || "Failed to confirm exit");
     } finally {
       setActionLoading(null);
     }

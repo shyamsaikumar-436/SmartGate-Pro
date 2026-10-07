@@ -147,11 +147,21 @@ const getCurrentlyInside = (req, res) => {
 // Get Visitor by QR Code Token or ID
 const getVisitorByQR = (req, res) => {
     const { token } = req.params;
+    if (!token || token === "undefined" || token === "null") {
+        return res.status(400).json({ message: "Invalid token or pass ID" });
+    }
 
-    const sql = `SELECT * FROM visitors WHERE qr_token = ? OR id = ?`;
+    const isNumeric = !isNaN(token) && !isNaN(parseInt(token));
+    const sql = isNumeric
+        ? `SELECT * FROM visitors WHERE id = ? OR qr_token = ?`
+        : `SELECT * FROM visitors WHERE qr_token = ?`;
+    const params = isNumeric ? [parseInt(token), token] : [token];
 
-    db.query(sql, [token, token], (err, result) => {
-        if (err) return res.status(500).json(err);
+    db.query(sql, params, (err, result) => {
+        if (err) {
+            console.error("❌ SQL Error in getVisitorByQR:", err);
+            return res.status(500).json({ message: err.message || "Database error" });
+        }
         if (result.length === 0) return res.status(404).json({ message: "Visitor Not Found" });
         res.json(result[0]);
     });
@@ -160,15 +170,21 @@ const getVisitorByQR = (req, res) => {
 // Gate Entry Confirmation
 const confirmEntry = (req, res) => {
     const { token } = req.params;
+    if (!token || token === "undefined" || token === "null") {
+        return res.status(400).json({ message: "Invalid pass identifier" });
+    }
 
-    const sql = `
-        UPDATE visitors
-        SET status = 'Entered', entry_time = NOW()
-        WHERE qr_token = ? OR id = ?
-    `;
+    const isNumeric = !isNaN(token) && !isNaN(parseInt(token));
+    const sql = isNumeric
+        ? `UPDATE visitors SET status = 'Entered', entry_time = NOW() WHERE id = ? OR qr_token = ?`
+        : `UPDATE visitors SET status = 'Entered', entry_time = NOW() WHERE qr_token = ?`;
+    const params = isNumeric ? [parseInt(token), token] : [token];
 
-    db.query(sql, [token, token], (err) => {
-        if (err) return res.status(500).json(err);
+    db.query(sql, params, (err, result) => {
+        if (err) {
+            console.error("❌ SQL Error in confirmEntry:", err);
+            return res.status(500).json({ message: err.message || "Failed to mark visitor entry" });
+        }
         res.json({ message: "Visitor Entry Confirmed" });
     });
 };
@@ -176,15 +192,21 @@ const confirmEntry = (req, res) => {
 // Gate Exit Confirmation
 const confirmExit = (req, res) => {
     const { token } = req.params;
+    if (!token || token === "undefined" || token === "null") {
+        return res.status(400).json({ message: "Invalid pass identifier" });
+    }
 
-    const sql = `
-        UPDATE visitors
-        SET status = 'Exited', exit_time = NOW()
-        WHERE qr_token = ? OR id = ?
-    `;
+    const isNumeric = !isNaN(token) && !isNaN(parseInt(token));
+    const sql = isNumeric
+        ? `UPDATE visitors SET status = 'Exited', exit_time = NOW() WHERE id = ? OR qr_token = ?`
+        : `UPDATE visitors SET status = 'Exited', exit_time = NOW() WHERE qr_token = ?`;
+    const params = isNumeric ? [parseInt(token), token] : [token];
 
-    db.query(sql, [token, token], (err) => {
-        if (err) return res.status(500).json(err);
+    db.query(sql, params, (err, result) => {
+        if (err) {
+            console.error("❌ SQL Error in confirmExit:", err);
+            return res.status(500).json({ message: err.message || "Failed to mark visitor exit" });
+        }
         res.json({ message: "Visitor Exit Confirmed" });
     });
 };
